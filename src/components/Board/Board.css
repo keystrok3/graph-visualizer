@@ -1,0 +1,18 @@
+
+.grid {
+    display: grid;
+    grid-template-rows: repeat(20, 3fr);
+    grid-template-columns: repeat(40, 1fr);
+
+    height: 85vh;
+    width: 95%;
+    margin: .5em auto;
+
+}
+
+.grid div {
+    border: 1px solid #525252;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

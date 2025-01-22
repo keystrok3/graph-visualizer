@@ -1,8 +1,9 @@
 import startNode from '../../assets/startnode.svg'
 import endNode from '../../assets/endnode.svg'
 import useDrag from "../../hooks/useDrag"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import './Board.css'
+import useBFS from '../../hooks/useBFS'
 
 const GRAPH_GRID = Array.from(
     { length: 20 }, (_, i) => {
@@ -23,6 +24,9 @@ const Board = ({ buildingWall }) => {
     const end_node = useRef({ x: 10, y: 3 })
 
     const { dragStartHandler, handleDrop } = useDrag()
+
+    // Algo visualizer
+    const { animateBFS } = useBFS(grid, start_node, end_node, setGrid)
 
     /**
      * Make a wall of invalid (that cannot be visited by the algorithm) nodes in the grid
@@ -48,6 +52,10 @@ const Board = ({ buildingWall }) => {
             })
         }
    }
+   
+    useEffect(() => {
+        animateBFS()
+    }, [])
 
     return (
         <div className="grid">
@@ -65,7 +73,9 @@ const Board = ({ buildingWall }) => {
                                 onMouseDown={() => setMouseDown(true)}
                                 onMouseUp={() => setMouseDown(false)}
                                 onMouseOver={(e) => makeWall(e)}
-                                style={{ backgroundColor: col.isWall ? "#242424" : "inherit" }}
+                                style={{ 
+                                    backgroundColor: col.isWall ? "#242424" : col.visited ? "#5568e0" : "inherit",
+                                }}
                             > 
                                 {
                                     (i === start_node.current.x && j === start_node.current.y) ? 

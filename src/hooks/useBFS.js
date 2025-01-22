@@ -1,54 +1,73 @@
-import { useRef } from "react"
+import { useCallback, useEffect, useRef } from "react"
 
 
-const useBFS = (start_node, end_node) => {
-    const queue = useRef([ start_node ])
+const useBFS = (grid, start_node, end_node, setGrid) => {
+    const queue = useRef([ start_node.current ])
     const pathMap = useRef(new Map())
+    const timeOutRef = useRef()
+    const foundEnd = useRef(false)
 
-    function animateBFS(setGrid) {
-        // 1. Insert start node into front of queue
-        // 2. Pop queue and call the value current_node
-        // 3. Set the 'visited' property of current_node to true
-        // 4. Insert the neighbours of current into queue
-        // 5. Add (neighbour,currentNode) pairs into new Map
-        // 6. If queue is not empty, go to 2
+    const animateBFS = useCallback(() => {
+        if(queue.current.length === 0 || foundEnd.currents) {
+            return clearTimeout(timeOutRef.current)
+        }
 
         let current_node = queue.current.pop()
         
+        if(current_node.x === end_node.current.x && current_node.y === end_node.current.y) {
+            return clearTimeout(timeOutRef.current)
+        }
+
         setGrid(prev => {
             let newGrid = prev.map(row => row.map(val => val))
             if(current_node.visited) return newGrid
 
-            return newGrid.map(row => row.map(val => {
-                if(val.x === current_node.x && val.y === current_node.y) {
-                    return { ...val, visited: true }
+            newGrid[current_node.x][current_node.y] = {
+                ...newGrid[current_node.x][current_node.y],
+                visited: true
+            }
+
+            // Add neighbours to queue
+            const neighbours = getValidNeighbours(current_node, grid)
+            for(let neighbour of neighbours) {
+                if(!queue.current.includes(neighbour)) {
+                    queue.current.unshift(neighbour)
+                    pathMap.current.set(neighbour, current_node)
                 }
-                return val
-            }))
+            }
+
+            return newGrid
         })
 
-        // Add neighbours to queue
-        const neighbours = getValidNeighbours(node)
-        for(let neighbour of neighbours) {
-            queue.current.unshift(neighbour)
-            pathMap.current.set(neighbour, current_node)
+        timeOutRef.current = setTimeout(() => animateBFS(setGrid), 30)
+    }, [ end_node])
+
+    useEffect(() => {
+        if (!foundEnd.current) {  // Only start animation if end not found
+            timeOutRef.current = setTimeout(animateBFS, 30)
         }
 
-    }
+        return () => clearTimeout(timeOutRef.current)
+    }, [ grid ])
+
+    return { animateBFS }
 }
 
-function getValidNeighbours(node) {
-    let neighbours = [ 
-        [-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,-1],[0,1],[1,1] 
-    ].map(([ i, j ]) => {
-        let new_val = { x: node.x + i, y: node.y + j }
-        
-        if(new_val.x > 19 || new_val.x < 0 || new_val.y < 0 || new_val.y > 39) {
-            return
-        }
+function getValidNeighbours(node, grid) {
+    let neighbour_coordinates = [[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,-1],[0,1],[1,1]]
 
-        return new_val.filter(val => val === undefined)
-    })
+    let neighbours = neighbour_coordinates.map(([ i, j ]) => {
+            const newX = node.x + i
+            const newY = node.y + j
+            
+            if(newX >= 0 && newX < 20 && newY >= 0 && newY < 40) {
+                return grid[newX][newY]
+            }
+            return null
+    }).filter(neighbour => neighbour && !neighbour.visited && !neighbour.isWall)
 
     return neighbours
 }
+
+
+export default useBFS

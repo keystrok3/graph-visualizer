@@ -2,9 +2,10 @@
 import startNode from '../../assets/startnode.svg'
 import endNode from '../../assets/endnode.svg'
 import useDrag from "../../hooks/useDrag"
-import { useEffect, useRef, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import './Board.css'
 import useBFS from '../../hooks/useBFS'
+import { ControlsContext } from '../../context/controls'
 
 const GRAPH_GRID = Array.from(
     { length: 20 }, (_, i) => {
@@ -16,10 +17,10 @@ const GRAPH_GRID = Array.from(
 /**
  * 40 by 40 grid representing graph
 */
-const Board = ({ buildingWall, running, onStart }) => {
+const Board = ({ buildingWall }) => {
     const [ grid, setGrid ] = useState([ ...GRAPH_GRID ])
-    
     const [ mouseDown, setMouseDown ] = useState(false)
+    const { animationRunning, toggleAnimation } = useContext(ControlsContext)
 
     const start_node = useRef({ x: 7, y: 17 })
     const end_node = useRef({ x: 10, y: 3 })
@@ -27,7 +28,7 @@ const Board = ({ buildingWall, running, onStart }) => {
     const { dragStartHandler, handleDrop } = useDrag()
 
     // Algo visualizer
-    const { animateBFS } = useBFS(grid, start_node, end_node, setGrid, running)
+    const { animateBFS } = useBFS(grid, start_node, end_node, setGrid, animationRunning)
 
     /**
      * Make a wall of invalid (that cannot be visited by the algorithm) nodes in the grid
@@ -55,7 +56,7 @@ const Board = ({ buildingWall, running, onStart }) => {
    }
    
     useEffect(() => {
-        animateBFS(onStart)
+        animateBFS(toggleAnimation)
     }, [])
 
     return (

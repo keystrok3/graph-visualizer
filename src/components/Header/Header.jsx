@@ -1,8 +1,12 @@
 /* eslint-disable react/prop-types */
 
+import { useContext } from 'react'
 import './Header.css'
+import { ControlsContext } from '../../context/controls.jsx'
 
-const Header = ({ onMakeWall, onStart, running}) => {
+const Header = ({ onMakeWall}) => {
+
+    const { toggleAnimation, animationRunning } = useContext(ControlsContext)
 
     return (
         <header className="header">
@@ -10,7 +14,7 @@ const Header = ({ onMakeWall, onStart, running}) => {
 
             <div className='tools'>
                 <button onClick={onMakeWall} id='make-wall'>Make Wall</button>
-                <button onClick={onStart}>{ running ? "Stop" : "Start" }</button>
+                <button onClick={toggleAnimation}>{ animationRunning ? "Stop" : "Start" }</button>
             </div>
 
         </header>

@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import startNode from '../../assets/startnode.svg'
 import endNode from '../../assets/endnode.svg'
 import useDrag from "../../hooks/useDrag"
@@ -15,7 +16,7 @@ const GRAPH_GRID = Array.from(
 /**
  * 40 by 40 grid representing graph
 */
-const Board = ({ buildingWall }) => {
+const Board = ({ buildingWall, running, onStart }) => {
     const [ grid, setGrid ] = useState([ ...GRAPH_GRID ])
     
     const [ mouseDown, setMouseDown ] = useState(false)
@@ -26,7 +27,7 @@ const Board = ({ buildingWall }) => {
     const { dragStartHandler, handleDrop } = useDrag()
 
     // Algo visualizer
-    const { animateBFS } = useBFS(grid, start_node, end_node, setGrid)
+    const { animateBFS } = useBFS(grid, start_node, end_node, setGrid, running)
 
     /**
      * Make a wall of invalid (that cannot be visited by the algorithm) nodes in the grid
@@ -54,7 +55,7 @@ const Board = ({ buildingWall }) => {
    }
    
     useEffect(() => {
-        animateBFS()
+        animateBFS(onStart)
     }, [])
 
     return (

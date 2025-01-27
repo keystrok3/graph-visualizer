@@ -1,7 +1,8 @@
+/* eslint-disable react/prop-types */
 
 import './Header.css'
 
-const Header = ({ onMakeWall}) => {
+const Header = ({ onMakeWall, onStart, running}) => {
 
     return (
         <header className="header">
@@ -9,6 +10,7 @@ const Header = ({ onMakeWall}) => {
 
             <div className='tools'>
                 <button onClick={onMakeWall} id='make-wall'>Make Wall</button>
+                <button onClick={onStart}>{ running ? "Stop" : "Start" }</button>
             </div>
 
         </header>

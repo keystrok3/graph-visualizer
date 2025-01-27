@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useRef } from "react"
 
 
-const useBFS = (grid, start_node, end_node, setGrid) => {
+const useBFS = (grid, start_node, end_node, setGrid, running) => {
     const queue = useRef([ start_node.current ])
     const pathMap = useRef(new Map())
     const timeOutRef = useRef()
     const foundEnd = useRef(false)
 
-    const animateBFS = useCallback(() => {
-        if(queue.current.length === 0 || foundEnd.currents) {
+    const animateBFS = useCallback((onStart) => {
+        if(queue.current.length === 0 || foundEnd.current) {
+            onStart()
             return clearTimeout(timeOutRef.current)
         }
 
@@ -40,15 +41,15 @@ const useBFS = (grid, start_node, end_node, setGrid) => {
         })
 
         timeOutRef.current = setTimeout(() => animateBFS(setGrid), 30)
-    }, [ end_node])
+    }, [ end_node, running ])
 
     useEffect(() => {
-        if (!foundEnd.current) {  // Only start animation if end not found
+        if (!foundEnd.current && running) {  // Only start animation if end not found
             timeOutRef.current = setTimeout(animateBFS, 30)
         }
 
         return () => clearTimeout(timeOutRef.current)
-    }, [ grid ])
+    }, [ grid, running ])
 
     return { animateBFS }
 }

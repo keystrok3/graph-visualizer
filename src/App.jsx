@@ -5,14 +5,23 @@ import './App.css'
 
 const App = () => {
   const [ buildingWall, setBuildingWall ] = useState(false)
+  const [ running, setRunning ] = useState(false)
 
   const handleMakeWall = () => {
     setBuildingWall(prev => !prev)
   }
 
+  const handleClickStart = () => {
+    setRunning(prev => !prev)
+  }
+
   return <div className="App">
-    <Header onMakeWall={handleMakeWall} />
-    <Board buildingWall={buildingWall}/>
+    <Header 
+      onMakeWall={handleMakeWall} 
+      onStart={handleClickStart} 
+      running={running}
+    />
+    <Board buildingWall={buildingWall} running={running} onStart={handleClickStart}/>
   </div>
 }
 

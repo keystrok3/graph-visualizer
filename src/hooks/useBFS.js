@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef } from "react"
+import { getValidNeighbours } from "../utils/get_neighbours"
 
 
-const useBFS = (grid, start_node, end_node, setGrid, running) => {
+const useBFS = (grid, start_node, end_node, setGrid, animation_running) => {
     const queue = useRef([ start_node.current ])
     const pathMap = useRef(new Map())
     const timeOutRef = useRef()
@@ -20,6 +21,7 @@ const useBFS = (grid, start_node, end_node, setGrid, running) => {
         }
 
         setGrid(prev => {
+            
             let newGrid = prev.map(row => row.map(val => val))
             if(current_node.visited) return newGrid
 
@@ -31,7 +33,7 @@ const useBFS = (grid, start_node, end_node, setGrid, running) => {
             // Add neighbours to queue
             const neighbours = getValidNeighbours(current_node, grid)
             for(let neighbour of neighbours) {
-                if(!queue.current.includes(neighbour)) {
+                if(!queue.current.includes(neighbour) && !neighbour.isWall) {
                     queue.current.unshift(neighbour)
                     pathMap.current.set(neighbour, current_node)
                 }
@@ -40,35 +42,18 @@ const useBFS = (grid, start_node, end_node, setGrid, running) => {
             return newGrid
         })
 
-        timeOutRef.current = setTimeout(() => animateBFS(setGrid), 30)
-    }, [ end_node, running ])
+        timeOutRef.current = setTimeout(() => animateBFS(setGrid), 10)
+    }, [ end_node, animation_running ])
 
     useEffect(() => {
-        if (!foundEnd.current && running) {  // Only start animation if end not found
-            timeOutRef.current = setTimeout(animateBFS, 30)
+        if (!foundEnd.current && animation_running) {  // Only start animation if end not found
+            timeOutRef.current = setTimeout(animateBFS, 10)
         }
 
         return () => clearTimeout(timeOutRef.current)
-    }, [ grid, running ])
+    }, [ grid, animation_running ])
 
     return { animateBFS }
 }
-
-function getValidNeighbours(node, grid) {
-    let neighbour_coordinates = [[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,-1],[0,1],[1,1]]
-
-    let neighbours = neighbour_coordinates.map(([ i, j ]) => {
-            const newX = node.x + i
-            const newY = node.y + j
-            
-            if(newX >= 0 && newX < 20 && newY >= 0 && newY < 40) {
-                return grid[newX][newY]
-            }
-            return null
-    }).filter(neighbour => neighbour && !neighbour.visited && !neighbour.isWall)
-
-    return neighbours
-}
-
 
 export default useBFS

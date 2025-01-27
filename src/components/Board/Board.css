@@ -10,9 +10,19 @@
 
 }
 
-.grid div {
+.tile {
     border: 1px solid #525252;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.tile.wall {
+    background-color: #242424;
+}
+
+.tile.visited {
+    background-color: #5568e0;
+    /* transition-property: background-color;
+    transition-duration: 3s; */
 }

@@ -2,7 +2,7 @@
 import startNode from '../../assets/startnode.svg'
 import endNode from '../../assets/endnode.svg'
 import useDrag from "../../hooks/useDrag"
-import { useContext, useEffect, useRef, useState } from "react"
+import { memo, useContext, useEffect, useRef, useState } from "react"
 import './Board.css'
 import useBFS from '../../hooks/useBFS'
 import { ControlsContext } from '../../context/controls'
@@ -17,10 +17,14 @@ const GRAPH_GRID = Array.from(
 /**
  * 40 by 40 grid representing graph
 */
-const Board = ({ buildingWall }) => {
+const Board = () => {
     const [ grid, setGrid ] = useState([ ...GRAPH_GRID ])
     const [ mouseDown, setMouseDown ] = useState(false)
-    const { animationRunning, toggleAnimation } = useContext(ControlsContext)
+    const { 
+        animationRunning, 
+        toggleAnimation ,
+        wallMode    
+    } = useContext(ControlsContext)
 
     const start_node = useRef({ x: 7, y: 17 })
     const end_node = useRef({ x: 10, y: 3 })
@@ -34,7 +38,7 @@ const Board = ({ buildingWall }) => {
      * Make a wall of invalid (that cannot be visited by the algorithm) nodes in the grid
     */
    const makeWall = (e) => {
-        if(!buildingWall) return
+        if(!wallMode) return
         if(mouseDown) {
             const row = Number(e.target.dataset.row)
             const col = Number(e.target.dataset.col)
@@ -42,12 +46,8 @@ const Board = ({ buildingWall }) => {
             setGrid(prev => {
                 let newGrid = prev.map(row => row.map(node => node))
                 // check not to make start node or end node part of wall
-                if(
-                    (row === start_node.current.x && col === start_node.current.y) || 
-                    (row === end_node.current.x && col === end_node.current.y)
-                ) {
-                    return newGrid
-                }
+                if((row === start_node.current.x && col === start_node.current.y) || 
+                (row === end_node.current.x && col === end_node.current.y)) return newGrid
 
                 newGrid[row][col].isWall = true
                 return newGrid
@@ -56,8 +56,10 @@ const Board = ({ buildingWall }) => {
    }
    
     useEffect(() => {
-        animateBFS(toggleAnimation)
-    }, [])
+        if(animationRunning) {
+            animateBFS(toggleAnimation)
+        }
+    }, [ animationRunning ])
 
     return (
         <div className="grid">
@@ -65,7 +67,10 @@ const Board = ({ buildingWall }) => {
                 grid.map((row, i) => {
                     return row.map((col, j) => {
                         return (
-                            <div 
+                            <div
+                                className={
+                                    `tile ${col.isWall ? "wall" : col.visited ? "visited" : ""}`
+                                }
                                 key={`${i}${j}`} 
                                 onDragEnter={(e) => e.preventDefault()} 
                                 onDragOver={(e) => e.preventDefault()}
@@ -75,9 +80,6 @@ const Board = ({ buildingWall }) => {
                                 onMouseDown={() => setMouseDown(true)}
                                 onMouseUp={() => setMouseDown(false)}
                                 onMouseOver={(e) => makeWall(e)}
-                                style={{ 
-                                    backgroundColor: col.isWall ? "#242424" : col.visited ? "#5568e0" : "inherit",
-                                }}
                             > 
                                 {
                                     (i === start_node.current.x && j === start_node.current.y) ? 
@@ -107,4 +109,4 @@ const Board = ({ buildingWall }) => {
     )
 }
 
-export default Board
+export default memo(Board)

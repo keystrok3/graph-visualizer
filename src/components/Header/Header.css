@@ -18,8 +18,13 @@
 }
 
 .tools > button {
-    width: 7em;
+    width: 10em;
     height: 2rem;
     cursor: pointer;
     margin-right: 1em;
+    background-color: #303030;
+    color: #ffffff;
+    border: 1px none #303030;
+    border-radius: 5px;
+    font-weight: 600;
 }
